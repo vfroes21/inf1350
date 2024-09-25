@@ -51,39 +51,74 @@ local function newFruit()
     local radius = fruitsData[fruitType].radius
     local alive = true
 
-    local co = coroutine.create(function()
+    local frame_dt = -1 -- global dt value for coroutines
+    local frame_mx = -1 -- global mx value for coroutines
+    local frame_my = -1 -- global my value for coroutines
+
+    local co_table = {}
+
+    co_table.alive = coroutine.create(function()
         while y <= love.graphics.getHeight() + radius do
             coroutine.yield()
         end
         alive = false
     end)
 
-    return {
-        update = function(dt)
-            x = x + xSpeed * dt
-            y = y + ySpeed * dt
-            ySpeed = ySpeed + 600 * dt
-            if coroutine.status(co) ~= "dead" then
-                coroutine.resume(co)
-            end
-        end,
+    co_table.draw = coroutine.create(function()
+        while alive do
+            love.graphics.setColor(color)
+            love.graphics.circle("fill", x, y, radius)
+            coroutine.yield()
+        end
+    end)
 
-        checkMouseCollision = function(mx, my)
+    co_table.update = coroutine.create(function()
+        while alive do
+            x = x + xSpeed * frame_dt
+            y = y + ySpeed * frame_dt
+            ySpeed = ySpeed + 600 * frame_dt
+            coroutine.yield()
+        end
+    end)
+
+    co_table.collision_check = coroutine.create(function()
+        while alive do
             local distance = math.sqrt((x - mx)^2 + (y - my)^2)
             if distance < radius then
                 alive = false
                 return true
             end
             return false
+        end
+    end)
+
+    local function run_coroutine(co_name)
+        if co_table[co_name] == nil then
+            return nil
+        end
+
+        if coroutine.status(co_table[co_name]) ~= "dead" then
+            coroutine.resume(co_table[co_name])
+        end
+        
+    end
+
+    return {
+        update = function(dt)
+            frame_dt = dt
+            run_coroutine("alive")
+            run_coroutine("update")
+        end,
+
+        checkMouseCollision = function(mx, my)
+            frame_mx = mx
+            frame_my = my
+            run_coroutine("collision_check")
         end,
 
         draw = function()
-            if alive then
-                love.graphics.setColor(color)
-                love.graphics.circle("fill", x, y, radius)
-            end
+            run_coroutine("draw")
         end,
-
         isAlive = function()
             return alive
         end
