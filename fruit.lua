@@ -1,4 +1,5 @@
 require "love"
+require "coroutine_aux"
 
 function newFruit()
     local x = love.math.random(50, love.graphics.getWidth() - 50)
@@ -18,16 +19,18 @@ function newFruit()
     local radius = fruitsData[fruitType].radius
     local alive = true
 
+    local cutted = false
+
     local co_table = {}
 
-    co_table.alive = coroutine.wrap(function()
+    co_table.alive = coroutine.create(function()
         while y <= love.graphics.getHeight() + radius do
             coroutine.yield()
         end
         alive = false
     end)
 
-    co_table.draw = coroutine.wrap(function()
+    co_table.draw = coroutine.create(function()
         while alive do
             love.graphics.setColor(color)
             love.graphics.circle("fill", x, y, radius)
@@ -35,7 +38,7 @@ function newFruit()
         end
     end)
 
-    co_table.update = coroutine.wrap(function(dt)
+    co_table.update = coroutine.create(function(dt)
         while alive do
             x = x + xSpeed * dt
             y = y + ySpeed * dt
@@ -44,30 +47,29 @@ function newFruit()
         end
     end)
 
-    co_table.collision_check = coroutine.wrap(function(mx, my)
-        while alive do
-            local result = false
+    co_table.collision_check = coroutine.create(function(mx, my)
+        while alive and not cutted do
             local distance = math.sqrt((x - mx)^2 + (y - my)^2)
             if distance < radius then
                 alive = false
-                result = true
+                cutted = true
             end
-            mx, my = coroutine.yield(result)
+            mx, my = coroutine.yield(cutted)
         end
     end)
 
     return {
         update = function(dt)
-            co_table.alive()
-            co_table.update(dt)
+            run_coroutine(co_table, "alive")
+            run_coroutine(co_table, "update", dt)
         end,
 
         checkMouseCollision = function(mx, my)
-            return co_table.collision_check(mx, my)
+            return run_coroutine(co_table, "collision_check", mx, my)
         end,
 
         draw = function()
-            co_table.draw()
+            run_coroutine(co_table, "draw")
         end,
         isAlive = function()
             return alive
