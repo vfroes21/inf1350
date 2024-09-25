@@ -1,6 +1,7 @@
 require"fruit"
 
 fruits = {}
+score = 0
 
 function love.load()
     math.randomseed(os.time())
@@ -16,6 +17,7 @@ function love.update(dt)
             table.remove(fruits, i)
         end
     end
+    print("SCORE: ", score)
 end
 
 function love.draw()
@@ -26,8 +28,12 @@ end
 
 function love.mousepressed(x, y, button)
     if button == 1 then
+
+        -- check fruit colision and add score
         for _, fruit_instance in ipairs(fruits) do
-            fruit_instance.checkMouseCollision(x, y)
+            if fruit_instance.checkMouseCollision(x, y) then
+                score = score + fruit_instance.getScoreValue()
+            end
         end
     end
 end

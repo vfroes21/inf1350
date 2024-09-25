@@ -7,14 +7,19 @@ local function newBomb()
     local y = love.graphics.getHeight() - 50
     local xSpeed = love.math.random(-200, 200)
     local ySpeed = love.math.random(-700, -500)
-    local bombTypes = {"watermelon", "apple", "orange", "grapes"}
+    local bombTypes = {"small", "medium", "large"}
     local bombType = bombTypes[math.random(#bombTypes)]
 
     local bombsData = {
-        watermelon = {radius = 30},
-        apple = {radius = 20},
-        orange = {radius = 25},
-        grapes = {radius = 15}
+        small = {
+            radius = 15,
+            yVariation = 1.6
+        },
+        medium = {
+            radius = 30,
+            yVariation = 1
+        },
+
     }
     local color = bombsData[bombType].color
     local radius = bombsData[bombType].radius
@@ -52,7 +57,7 @@ local function newBomb()
 
     co_table.collision_check = coroutine.create(function()
         while alive do
-            local distance = math.sqrt((x - mx)^2 + (y - my)^2)
+            local distance = math.sqrt((x - frame_mx)^2 + (y - frame_my)^2)
             if distance < radius then
                 alive = false
                 return true

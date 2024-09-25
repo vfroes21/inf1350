@@ -52,44 +52,37 @@ function newFruit()
 
     co_table.collision_check = coroutine.create(function()
         while alive do
-            local distance = math.sqrt((x - mx)^2 + (y - my)^2)
+            local distance = math.sqrt((x - frame_mx)^2 + (y - frame_my)^2)
             if distance < radius then
                 alive = false
-                return true
+                local result = true
             end
-            return false
+            local result = false
+            coroutine.yield(result)
         end
     end)
-
-    local function run_coroutine(co_name)
-        if co_table[co_name] == nil then
-            return nil
-        end
-
-        if coroutine.status(co_table[co_name]) ~= "dead" then
-            coroutine.resume(co_table[co_name])
-        end
-        
-    end
 
     return {
         update = function(dt)
             frame_dt = dt
-            run_coroutine("alive")
-            run_coroutine("update")
+            run_coroutine(co_table, "alive")
+            run_coroutine(co_table, "update")
         end,
 
         checkMouseCollision = function(mx, my)
             frame_mx = mx
             frame_my = my
-            run_coroutine("collision_check")
+            run_coroutine(co_table, "collision_check")
         end,
 
         draw = function()
-            run_coroutine("draw")
+            run_coroutine(co_table, "draw")
         end,
         isAlive = function()
             return alive
+        end,
+        getScoreValue = function()
+            return love.math.floor(900/fruitsData[fruitType].radius)
         end
     }
 end
