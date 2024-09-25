@@ -2,22 +2,22 @@ require "love"
 require "coroutine"
 require "coroutine_aux"
 
-function newFruit()
+local function newBomb()
     local x = love.math.random(50, love.graphics.getWidth() - 50)
     local y = love.graphics.getHeight() - 50
     local xSpeed = love.math.random(-200, 200)
     local ySpeed = love.math.random(-700, -500)
-    local fruitTypes = {"watermelon", "apple", "orange", "grapes"}
-    local fruitType = fruitTypes[math.random(#fruitTypes)]
+    local bombTypes = {"watermelon", "apple", "orange", "grapes"}
+    local bombType = bombTypes[math.random(#bombTypes)]
 
-    local fruitsData = {
-        watermelon = {color = {0, 1, 0, 1}, radius = 30},
-        apple = {color = {1, 0, 0, 1}, radius = 20},
-        orange = {color = {1, 0.5, 0, 1}, radius = 25},
-        grapes = {color = {0.5, 0, 0.5, 1}, radius = 15}
+    local bombsData = {
+        watermelon = {radius = 30},
+        apple = {radius = 20},
+        orange = {radius = 25},
+        grapes = {radius = 15}
     }
-    local color = fruitsData[fruitType].color
-    local radius = fruitsData[fruitType].radius
+    local color = bombsData[bombType].color
+    local radius = bombsData[bombType].radius
     local alive = true
 
     local frame_dt = -1 -- global dt value for coroutines
