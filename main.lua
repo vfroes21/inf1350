@@ -32,7 +32,7 @@ function love.mousepressed(x, y, button)
         -- check fruit colision and add score
         for _, fruit_instance in ipairs(fruits) do
             if fruit_instance.checkMouseCollision(x, y) then
-                score = score + fruit_instance.getScoreValue()
+                score = score + fruit_instance.getScore()
             end
         end
     end
