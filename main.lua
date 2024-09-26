@@ -32,6 +32,46 @@ function draw_logo()
     love.graphics.draw(title_image, love.graphics.getWidth()/2 - img_w/2, 10)
     love.graphics.printf("Press 'S' to start", 0, love.graphics.getHeight() / 2 + 50, love.graphics.getWidth(), "center")
 end
+
+function print_lost_fruits()
+  local font = love.graphics.newFont(32)
+  love.graphics.setFont(font)
+  
+  if dead_seq == 0 then
+    love.graphics.setColor(0, 0, 1, 1)
+    
+    love.graphics.print("X", 100, 30)
+    love.graphics.print("X", 125, 30)
+    love.graphics.print("X", 150, 30)
+  end 
+  
+  if dead_seq == 1 then
+    love.graphics.setColor (1, 0, 0, 1)
+    love.graphics.print("X", 100, 30)
+    
+    love.graphics.setColor(0, 0, 1, 1)
+    love.graphics.print("X", 125, 30)
+    love.graphics.print("X", 150, 30)
+  end
+  
+  if dead_seq == 2 then
+    love.graphics.setColor (1, 0, 0, 1)
+    love.graphics.print("X", 100, 30)
+    love.graphics.print("X", 125, 30)
+    
+    love.graphics.setColor(0, 0, 1, 1)
+    love.graphics.print("X", 150, 30)
+  end
+  
+  if dead_seq == 3 then
+    love.graphics.setColor (1, 0, 0, 1)
+    love.graphics.print("X", 100, 30)
+    love.graphics.print("X", 125, 30)
+    love.graphics.print("X", 150, 30)
+  end
+  
+end
+
 function love.load()
     width, height = love.graphics.getDimensions()
     logo_image = love.graphics.newImage("logo.png")
@@ -65,7 +105,7 @@ function love.update(dt)
       for i = 1, 2 + difficulty_factor  do
         table.insert(bombs, newBomb())
       end
-      spawnTimer = spawnTimer - spawnInterval -- Reset timer (can subtract to allow for slightly over 5 seconds)
+      spawnTimer = spawnTimer - spawnInterval
     end
 end
 
@@ -74,10 +114,13 @@ function love.draw()
         love.graphics.setBackgroundColor({117/255, 59/255, 0/255})
         draw_logo()
     elseif state == GAME_STATE.Running then
+        
         local screenWidth = love.graphics.getWidth()
         local screenHeight = love.graphics.getHeight()
-    
+        
+        love.graphics.setColor(1,1,1,1)
         love.graphics.draw(bg, 0, 0, 0, screenWidth / bg:getWidth(), screenHeight / bg:getHeight())
+        print_lost_fruits()
         for _, fruit_instance in ipairs(fruits) do
             fruit_instance.draw()
         end
@@ -195,6 +238,7 @@ function show_fixed_score()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.print("Score: " .. score,     love.graphics.getWidth() - 100, 10)
         love.graphics.print("Combo: " .. combo_mult,     100, 10)
+    
         coroutine.yield()
     end
 end
