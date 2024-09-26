@@ -7,11 +7,20 @@ bombs = {}
 score = 0
 gameOver = false
 
+local spawnTimer = 0 
+local spawnInterval = 3 -- every 3 seconds
+local difficulty_timer = 0
+local difficulty_interval = 20 -- every 20 seconds
+local difficulty_factor = 0  -- initially 0
+
 function love.load()
     setGame()
 end
 
 function love.update(dt)
+    spawnTimer = spawnTimer + dt
+    difficulty_timer = difficulty_timer + dt
+    
     for i = #fruits, 1, -1 do
         fruits[i].update(dt)
         if not fruits[i].isAlive() then
@@ -24,6 +33,23 @@ function love.update(dt)
             table.remove(bombs, i)
         end
     end
+    
+    if difficulty_timer >= difficulty_interval then
+      difficulty_factor = difficulty_factor + 1
+      
+      difficulty_timer = difficulty_timer - difficulty_interval
+    end
+    
+    if spawnTimer >= spawnInterval then
+      for i = 1, 2 + difficulty_factor do
+        table.insert(fruits, newFruit())
+      end
+      for i = 1, 2 + difficulty_factor  do
+        table.insert(bombs, newBomb())
+      end
+      spawnTimer = spawnTimer - spawnInterval -- Reset timer (can subtract to allow for slightly over 5 seconds)
+    end
+    
     print("SCORE: ", score)
 end
 
@@ -78,10 +104,10 @@ function setGame()
     fruits = {}
     bombs = {}
 
-    for i = 1, 5 do
+    for i = 1, 2 do
         table.insert(fruits, newFruit())
     end
-    for i = 1, 5 do
+    for i = 1, 2 do
         table.insert(bombs, newBomb())
     end
 end
