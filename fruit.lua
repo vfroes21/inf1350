@@ -1,6 +1,12 @@
 require "love"
 require "coroutine_aux"
 
+FRUIT_STATE = {
+    Alive = 1,
+    Cutted = 2,
+    Dead = 3
+}
+
 function newFruit()
     local x = love.math.random(50, love.graphics.getWidth() - 50)
     local y = love.graphics.getHeight() - 50
@@ -17,9 +23,7 @@ function newFruit()
     }
     local color = fruitsData[fruitType].color
     local radius = fruitsData[fruitType].radius
-    local alive = true
-
-    local cutted = false
+    local state = FRUIT_STATE.Alive
 
     local co_table = {}
 
@@ -27,19 +31,23 @@ function newFruit()
         while y <= love.graphics.getHeight() + radius do
             coroutine.yield()
         end
-        alive = false
+        state = FRUIT_STATE.Dead
     end)
 
     co_table.draw = coroutine.create(function()
-        while alive do
+        while state ~= FRUIT_STATE.Dead do
             love.graphics.setColor(color)
-            love.graphics.circle("fill", x, y, radius)
+            if state == FRUIT_STATE.Alive then
+                love.graphics.circle("fill", x, y, radius)
+            elseif state == FRUIT_STATE.Cutted then
+                love.graphics.arc("fill", x, y, radius, 0, math.pi)
+            end
             coroutine.yield()
         end
     end)
 
     co_table.update = coroutine.create(function(dt)
-        while alive do
+        while state ~= FRUIT_STATE.Dead do
             x = x + xSpeed * dt
             y = y + ySpeed * dt
             ySpeed = ySpeed + 600 * dt
@@ -48,13 +56,12 @@ function newFruit()
     end)
 
     co_table.collision_check = coroutine.create(function(mx, my)
-        while alive and not cutted do
+        while state == FRUIT_STATE.Alive do
             local distance = math.sqrt((x - mx)^2 + (y - my)^2)
             if distance < radius then
-                alive = false
-                cutted = true
+                state = FRUIT_STATE.Cutted
             end
-            mx, my = coroutine.yield(cutted)
+            mx, my = coroutine.yield(state)
         end
     end)
 
@@ -71,8 +78,8 @@ function newFruit()
         draw = function()
             run_coroutine(co_table, "draw")
         end,
-        isAlive = function()
-            return alive
+        getState = function()
+            return state
         end,
         getScore = function()
             local value = math.floor(900/fruitsData[fruitType].radius)
