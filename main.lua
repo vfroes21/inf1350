@@ -36,6 +36,7 @@ function love.load()
     width, height = love.graphics.getDimensions()
     logo_image = love.graphics.newImage("logo.png")
     title_image = love.graphics.newImage("title.png")
+    bg = love.graphics.newImage("Images/1318898.jpeg")
 end
 
 
@@ -73,6 +74,10 @@ function love.draw()
         love.graphics.setBackgroundColor({117/255, 59/255, 0/255})
         draw_logo()
     elseif state == GAME_STATE.Running then
+        local screenWidth = love.graphics.getWidth()
+        local screenHeight = love.graphics.getHeight()
+    
+        love.graphics.draw(bg, 0, 0, 0, screenWidth / bg:getWidth(), screenHeight / bg:getHeight())
         for _, fruit_instance in ipairs(fruits) do
             fruit_instance.draw()
         end
