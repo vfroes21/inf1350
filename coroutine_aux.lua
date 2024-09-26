@@ -18,12 +18,10 @@ function get_scheduler()
         addComputationTask = function (f)
             local co_f = coroutine.create(f)
             table.insert(computation_tasks, co_f)
-            print("computation_tasks: ", computation_tasks[#computation_tasks])
         end,
         addPrintTask = function (f)
             local co_f = coroutine.create(f)
             table.insert(print_tasks, co_f)
-            print("print_tasks ", print_tasks[#print_tasks])
         end,
         executeComputation = function ()
             for idx, task in ipairs(computation_tasks) do
@@ -45,6 +43,5 @@ function get_scheduler()
             frame_dt = dt
         end
     }
-    print("scheduler: ", scheduler)
     return scheduler
 end

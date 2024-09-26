@@ -33,45 +33,6 @@ function draw_logo()
     love.graphics.printf("Press 'S' to start", 0, love.graphics.getHeight() / 2 + 50, love.graphics.getWidth(), "center")
 end
 
-function print_lost_fruits()
-  local font = love.graphics.newFont(32)
-  love.graphics.setFont(font)
-  
-  if dead_seq == 0 then
-    love.graphics.setColor(0, 0, 1, 1)
-    
-    love.graphics.print("X", 100, 30)
-    love.graphics.print("X", 125, 30)
-    love.graphics.print("X", 150, 30)
-  end 
-  
-  if dead_seq == 1 then
-    love.graphics.setColor (1, 0, 0, 1)
-    love.graphics.print("X", 100, 30)
-    
-    love.graphics.setColor(0, 0, 1, 1)
-    love.graphics.print("X", 125, 30)
-    love.graphics.print("X", 150, 30)
-  end
-  
-  if dead_seq == 2 then
-    love.graphics.setColor (1, 0, 0, 1)
-    love.graphics.print("X", 100, 30)
-    love.graphics.print("X", 125, 30)
-    
-    love.graphics.setColor(0, 0, 1, 1)
-    love.graphics.print("X", 150, 30)
-  end
-  
-  if dead_seq == 3 then
-    love.graphics.setColor (1, 0, 0, 1)
-    love.graphics.print("X", 100, 30)
-    love.graphics.print("X", 125, 30)
-    love.graphics.print("X", 150, 30)
-  end
-  
-end
-
 function love.load()
     width, height = love.graphics.getDimensions()
     logo_image = love.graphics.newImage("logo.png")
@@ -120,7 +81,7 @@ function love.draw()
         
         love.graphics.setColor(1,1,1,1)
         love.graphics.draw(bg, 0, 0, 0, screenWidth / bg:getWidth(), screenHeight / bg:getHeight())
-        print_lost_fruits()
+
         for _, fruit_instance in ipairs(fruits) do
             fruit_instance.draw()
         end
@@ -135,6 +96,8 @@ function love.draw()
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.printf("Game Over\nFinal Score: " .. score, 0, love.graphics.getHeight() / 2, love.graphics.getWidth(), "center")
         love.graphics.setColor(1, 1, 1, 1)
+        local font = love.graphics.newFont(12)
+        love.graphics.setFont(font)
         love.graphics.printf("Press 'R' to restart", 0, love.graphics.getHeight() / 2 + 50, love.graphics.getWidth(), "center")
         love.graphics.printf("Press 'M' to go to Menu", 0, love.graphics.getHeight() / 2 + 100, love.graphics.getWidth(), "center")
 
@@ -184,7 +147,7 @@ function compute_dead(dt)
                     combo_seq = 0
                     dead_seq = dead_seq + 1
                     if dead_seq >= 3 then
-                        state = GAME_STATE.Over -- replace for kill
+                        state = GAME_STATE.Over
                     end
                 else
                     cutted_alive_count = cutted_alive_count - 1
@@ -242,6 +205,24 @@ function show_fixed_score()
         coroutine.yield()
     end
 end
+
+function print_lost_fruits()
+    while state == GAME_STATE.Running do
+        local font = love.graphics.newFont(32)
+        love.graphics.setFont(font)
+        local x_count = dead_seq
+        for i=0, 2 do
+            love.graphics.setColor(0, 0, 1, 1)
+            if x_count > 0 then
+                love.graphics.setColor (1, 0, 0, 1)
+                x_count = x_count - 1
+            end
+            love.graphics.print("X", 100 + 25 * i, 30)
+        end
+        coroutine.yield()
+    end
+end
+
 function print_score(score, pos_print)
     function show_fruit_score(dt)
         local score_time = 2
@@ -280,6 +261,7 @@ function setGame()
     scheduler.addComputationTask(compute_score)
     
     scheduler.addPrintTask(show_fixed_score)
+    scheduler.addPrintTask(print_lost_fruits)
     
     fruits = {}
     bombs = {}
