@@ -42,7 +42,7 @@ function newBomb()
         while alive do
             love.graphics.setColor({0,0,0})
             love.graphics.circle("fill", x, y, radius)
-            love.graphics.setColor({1,0,0})
+            love.graphics.setColor({.7,0,0})
             love.graphics.circle("fill", x, y, radius-radius/10)
             coroutine.yield()
         end
