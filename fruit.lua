@@ -76,7 +76,6 @@ function newFruit()
         end,
         getScore = function()
             local value = math.floor(900/fruitsData[fruitType].radius)
-            print(value, fruitsData[fruitType].radius)
             return value
         end
     }
