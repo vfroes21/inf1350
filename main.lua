@@ -104,24 +104,24 @@ function love.draw()
     end
 end
 
-function love.mousepressed(x, y, button)
-    if button == 1 and state == GAME_STATE.Running then
+-- function love.mousepressed(x, y, button)
+--     if button == 1 and state == GAME_STATE.Running then
 
-        -- check fruit colision and add score
-        for _, fruit_instance in ipairs(fruits) do
-            if fruit_instance.checkMouseCollision(x, y) == FRUIT_STATE.Cutted then
-                fruit_score =  fruit_instance.getScore()
-                fruit_cut = {pos_x=x+20, pos_y=y-20}
-            end
-        end
-        for _, bomb_instance in ipairs(bombs) do
-            if bomb_instance.checkMouseCollision(x, y) then
-                state = GAME_STATE.Over
-                break
-            end
-        end
-    end
-end
+--         -- check fruit colision and add score
+--         for _, fruit_instance in ipairs(fruits) do
+--             if fruit_instance.checkMouseCollision(x, y) == FRUIT_STATE.Cutted then
+--                 fruit_score =  fruit_instance.getScore()
+--                 fruit_cut = {pos_x=x+20, pos_y=y-20}
+--             end
+--         end
+--         for _, bomb_instance in ipairs(bombs) do
+--             if bomb_instance.checkMouseCollision(x, y) then
+--                 state = GAME_STATE.Over
+--                 break
+--             end
+--         end
+--     end
+-- end
 
 function love.keypressed(key)
     if key == "r" and state == GAME_STATE.Over then
@@ -193,6 +193,27 @@ function compute_score()
     end
 end
 
+function compute_mouse()
+    while state == GAME_STATE.Running do
+        if love.mouse.isDown(1) then
+            -- check fruit colision and add score
+            x, y = love.mouse.getPosition()
+            for _, fruit_instance in ipairs(fruits) do
+                if fruit_instance.checkMouseCollision(x, y) == FRUIT_STATE.Cutted then
+                    fruit_score =  fruit_instance.getScore()
+                    fruit_cut = {pos_x=x+20, pos_y=y-20}
+                end
+            end
+            for _, bomb_instance in ipairs(bombs) do
+                if bomb_instance.checkMouseCollision(x, y) then
+                    state = GAME_STATE.Over
+                    break
+                end
+            end
+        end
+        coroutine.yield()
+    end
+end
 -- PRINT TASKS
 function show_fixed_score()
     while state == GAME_STATE.Running do
@@ -256,6 +277,7 @@ function setGame()
     
     scheduler = get_scheduler()
 
+    scheduler.addComputationTask(compute_mouse)
     scheduler.addComputationTask(compute_dead)
     scheduler.addComputationTask(compute_combo)
     scheduler.addComputationTask(compute_score)
